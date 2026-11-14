@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LulusTIU — Pelatih TIU Numerik Offline-First</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#273449; --line:#334155;
+    --txt:#e2e8f0; --muted:#94a3b8; --acc:#38bdf8; --acc2:#a78bfa;
+    --ok:#34d399; --bad:#f87171; --warn:#fbbf24;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--txt); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; min-height:100vh;}
+  .wrap{max-width:720px; margin:0 auto; padding:16px 14px 40px;}
+  header{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:10px 2px 14px;}
+  .logo{font-size:26px; font-weight:800; letter-spacing:.2px;}
+  .logo span{color:var(--acc);}
+  .tagline{color:var(--muted); font-size:13px; margin-top:2px;}
+  .pill{flex:none; font-size:11px; font-weight:700; padding:6px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--muted);}
+  .pill.ondevice{color:#052e16; background:var(--ok); border-color:var(--ok);}
+  .pill.cloud{color:#1e1b4b; background:var(--acc2); border-color:var(--acc2);}
+  nav{display:flex; gap:8px; margin-bottom:14px;}
+  nav button{flex:1; padding:11px 6px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--txt); font-size:14px; font-weight:700; cursor:pointer;}
+  nav button.active{background:var(--acc); color:#082f49; border-color:var(--acc);}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:14px;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
+  .chip{padding:8px 12px; border-radius:999px; border:1px solid var(--line); background:var(--card2); color:var(--txt); font-size:13px; font-weight:600; cursor:pointer;}
+  .chip.active{background:var(--acc2); color:#1e1b4b; border-color:var(--acc2);}
+  .badge{display:inline-block; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:var(--acc); border:1px solid var(--acc); padding:3px 8px; border-radius:999px; margin-bottom:10px;}
+  .qtext{font-size:17px; line-height:1.55; font-weight:600; margin-bottom:14px; white-space:pre-wrap;}
+  .opt{display:flex; gap:10px; align-items:flex-start; width:100%; text-align:left; padding:12px; margin-bottom:8px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--txt); font-size:15px; cursor:pointer;}
+  .opt .ltr{font-weight:800; color:var(--acc); flex:none;}
+  .opt.sel{border-color:var(--acc); outline:2px solid var(--acc);}
+  .opt.right{border-color:var(--ok); background:#064e3b;}
+  .opt.wrong{border-color:var(--bad); background:#7f1d1d;}
+  .opt:disabled{cursor:default; opacity:.92;}
+  .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+  .btn{flex:1; min-width:100px; padding:12px 10px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--txt); font-size:14px; font-weight:700; cursor:pointer;}
+  .btn.primary{background:var(--acc); color:#082f49; border-color:var(--acc);}
+  .btn.ai{background:linear-gradient(135deg,var(--acc2),var(--acc)); color:#0b1023; border:none;}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .box{border-radius:12px; padding:12px 14px; margin-top:12px; font-size:14px; line-height:1.6; display:none; white-space:pre-wrap;}
+  .box.show{display:block;}
+  .box.hint{background:#422006; border:1px solid var(--warn);}
+  .box.sol{background:#052e16; border:1px solid var(--ok);}
+  .box.fb-ok{background:#052e16; border:1px solid var(--ok);}
+  .box.fb-bad{background:#450a0a; border:1px solid var(--bad);}
+  .box .src{font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; opacity:.75; display:block; margin-bottom:4px;}
+  .muted{color:var(--muted); font-size:13px; line-height:1.6;}
+  .stat{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px dashed var(--line); font-size:14px;}
+  .stat:last-child{border-bottom:none;}
+  .big{font-size:30px; font-weight:800;}
+  .weak{color:var(--warn); font-weight:800;}
+  footer{color:var(--muted); font-size:12px; text-align:center; line-height:1.7; padding-top:6px;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="logo">Lulus<span>TIU</span></div>
+      <div class="tagline">Pelatih TIU Numerik CPNS — tetap jalan walau sinyal jelek (offline-first + AI hybrid)</div>
+    </div>
+    <div id="aiPill" class="pill">AI: bank soal offline</div>
+  </header>
+
+  <nav>
+    <button id="tabLatihan" class="active">Latihan</button>
+    <button id="tabDiag">Diagnostik</button>
+    <button id="tabProgres">Progres</button>
+  </nav>
+
+  <!-- LATIHAN -->
+  <section id="viewLatihan">
+    <div class="chips" id="subtypeChips"></div>
+    <div class="card">
+      <span class="badge" id="qBadge">Deret</span>
+      <div class="qtext" id="qText">Memuat soal…</div>
+      <div id="qOpts"></div>
+      <div class="row">
+        <button class="btn" id="btnHint">💡 Hint <small>(on-device)</small></button>
+        <button class="btn primary" id="btnCheck">Cek Jawaban</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="btnSol">📖 Pembahasan <small>(cloud)</small></button>
+        <button class="btn" id="btnNext">Soal Berikutnya →</button>
+      </div>
+      <div class="row">
+        <button class="btn ai" id="btnGenAI">✨ Minta Soal Baru dari AI (cloud)</button>
+      </div>
+      <div class="box hint" id="hintBox"></div>
+      <div class="box" id="fbBox"></div>
+      <div class="box sol" id="solBox"></div>
+    </div>
+    <p class="muted">Hint dirancang berjalan di perangkat (Gemini Nano via Firebase AI Logic) — instan & tanpa internet. Pembahasan lengkap dan soal baru datang dari cloud (Gemini). Selama Firebase belum tersambung, semua tombol tetap berfungsi memakai bank soal + pembahasan bawaan.</p>
+  </section>
+
+  <!-- DIAGNOSTIK -->
+  <section id="viewDiag" class="hidden">
+    <div class="card" id="diagIntro">
+      <div class="big" style="font-size:22px; margin-bottom:8px;">Diagnostik Mini — 10 Soal</div>
+      <p class="muted">Campuran deret, aritmatika cerita, perbandingan kuantitatif, dan bilangan. Di akhir, kamu dapat peta subtipe terlemahmu — persis seperti diagnostik tryout besarmu (di sana TIU numerik yang bikin gagal passing grade).</p>
+      <div class="row"><button class="btn primary" id="btnStartDiag">Mulai Diagnostik</button></div>
+    </div>
+    <div class="card hidden" id="diagRun">
+      <span class="badge" id="dBadge">Soal 1/10</span>
+      <div class="qtext" id="dText"></div>
+      <div id="dOpts"></div>
+      <div class="row"><button class="btn primary" id="btnDiagNext" disabled>Lanjut</button></div>
+    </div>
+    <div class="card hidden" id="diagResult"></div>
+  </section>
+
+  <!-- PROGRES -->
+  <section id="viewProgres" class="hidden">
+    <div class="card">
+      <div class="big" id="pScore">0%</div>
+      <p class="muted" id="pSummary">Belum ada latihan tercatat.</p>
+      <div id="pStats" style="margin-top:8px;"></div>
+      <div class="row"><button class="btn" id="btnReset">Reset Progres</button></div>
+    </div>
+  </section>
+
+  <footer>
+    LulusTIU — proyek #BuildHybridAI 2026 (Google × Devpost).<br>
+    Teknologi: Firebase AI Logic hybrid inference (on-device Gemini Nano + cloud Gemini).
+  </footer>
+</div>
+
+<script src="firebase-config.js"></script>
+<script src="questions.js"></script>
+<script src="firebase-ai.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

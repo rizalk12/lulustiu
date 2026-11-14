@@ -1,0 +1,1 @@
+{"hosting":{"ignore":["firebase.json","README.md","build_single.py","dist/**","firebase-config.example.js"],"public":".","rewrites":[{"destination":"/index.html","source":"**"}]}}
